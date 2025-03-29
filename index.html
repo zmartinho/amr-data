@@ -1,12 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Website</title>
+    <title>Antimicrobial Resistance International Data</title>
 </head>
 <body>
-    <h1>Welcome to My Website</h1>
-    <p>This is a basic webpage.</p>
+    <h1>This is an important issue</h1>
+    <p>Here's some data</p>
+    <canvas id="myChart" width="400" height="200"></canvas>
+    <script>
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'bar', // Type of chart (bar, line, pie, etc.)
+            data: {
+                labels: ['January', 'February', 'March', 'April', 'May'], // X-axis labels
+                datasets: [{
+                    label: 'Sample Data', // Name of the dataset
+                    data: [12, 19, 3, 5, 2], // Your data for the graph
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)', // Bar color
+                    borderColor: 'rgba(54, 162, 235, 1)', // Border color
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 </html>
