@@ -51,6 +51,7 @@
             background-color: #fff;
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 999;
         }
         #dataSlider {
             width: 150px;
@@ -167,46 +168,49 @@
         csvData.forEach(d => {
             dataMap[d.id] = d;
         });
+        let activeTimeout;
         svg.selectAll("path")
             .data(countries)
             .enter().append("path")
             .attr("class", "country")
             .attr("d", path)
             .on("mouseover", (event, d) => {
+                clearTimeout(activeTimeout); // Prevent previous timeout
+
                 const countryData = dataMap[d.id];
                 if (countryData) {
                     const sliderContainer = d3.select("#sliderContainer");
                     const slider = d3.select("#dataSlider");
                     const sliderValue = d3.select("#sliderValue");
 
-                    // Position the slider container
                     sliderContainer
                         .style("display", "block")
                         .style("left", event.pageX + 10 + "px")
                         .style("top", event.pageY + 10 + "px");
 
-                    // Set default value and update slider display
                     slider.property("value", 1);
                     sliderValue.text(`Value: ${countryData["value1"]}`);
 
-                    // Update on slider move
                     slider.on("input", function () {
                         const selected = `value${this.value}`;
                         sliderValue.text(`Value: ${countryData[selected]}`);
                     });
                 }
             })
-            .on("mouseout", (event, d) => {
-                const sliderContainer = document.getElementById("sliderContainer");
-
-                // Delay hiding to allow mouse to move to the slider
-                setTimeout(() => {
-                    const isOverSlider = sliderContainer.matches(':hover');
-                    if (!isOverSlider) {
+            .on("mouseout", () => {
+                activeTimeout = setTimeout(() => {
+                    const sliderContainer = document.getElementById("sliderContainer");
+                    if (!sliderContainer.matches(":hover")) {
                         sliderContainer.style.display = "none";
                     }
-                }, 100); // Small delay
+                }, 300); // Slightly longer delay helps too
             });
+
+        document.getElementById("sliderContainer").addEventListener("mouseleave", () => {
+            document.getElementById("sliderContainer").style.display = "none";
+        });
+        document.getElementById("sliderContainer").addEventListener("mouseenter", () => {
+            clearTimeout(activeTimeout); // Cancel hiding when entering slider
         });
     </script>
 </body>
