@@ -1,5 +1,5 @@
-id,name,value
-004,Afghanistan,123
-008,Albania,456
-840,United States,75
-156,China,55
+id,name,value1,value2,value3,value4
+4,Afghanistan,123,145,130,140
+8,Albania,456,470,480,465
+840,United States,75,80,85,90
+156,China,55,60,62,64

@@ -46,6 +46,16 @@
             pointer-events: none;
             font-size: 14px;
         }
+        #sliderContainer {
+            font-size: 14px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        #dataSlider {
+            width: 150px;
+        }
+
         /* Style the navbar */
         .navbar {
         background-color: #333;
@@ -117,6 +127,11 @@
     <h2>Interactive World Map</h2>
     <div id="map"></div>
     <div id="tooltip" class="tooltip" style="display: none;"></div>
+    <div id="sliderContainer" style="display: none; position: absolute; background: white; border: 1px solid #aaa; padding: 10px;">
+        <label for="dataSlider">Select data set:</label>
+        <input type="range" id="dataSlider" min="1" max="4" value="1">
+        <div id="sliderValue">Value: </div>
+    </div>
 
     
     <!-- D3.js World Map Script -->
@@ -149,23 +164,33 @@
             dataMap[d.id] = d;
         });
 
-        svg.selectAll("path")
-            .data(countries)
-            .enter().append("path")
-            .attr("class", "country")
-            .attr("d", path)
-            .on("mouseover", (event, d) => {
+        .on("mouseover", (event, d) => {
             const countryData = dataMap[d.id];
             if (countryData) {
-                tooltip.style("display", "block")
-                .style("left", event.pageX + 10 + "px")
-                .style("top", event.pageY - 20 + "px")
-                .html(`<strong>${countryData.name}</strong><br/>Value: ${countryData.value}`);
+                const sliderContainer = d3.select("#sliderContainer");
+                const slider = d3.select("#dataSlider");
+                const sliderValue = d3.select("#sliderValue");
+
+                // Position the slider container
+                sliderContainer
+                    .style("display", "block")
+                    .style("left", event.pageX + 10 + "px")
+                    .style("top", event.pageY + 10 + "px");
+
+                // Set default value and update slider display
+                slider.property("value", 1);
+                sliderValue.text(`Value: ${countryData["value1"]}`);
+
+                // Update on slider move
+                slider.on("input", function () {
+                    const selected = `value${this.value}`;
+                    sliderValue.text(`Value: ${countryData[selected]}`);
+                });
             }
-            })
-            .on("mouseout", () => {
-            tooltip.style("display", "none");
-            });
+        })
+        .on("mouseout", () => {
+            d3.select("#sliderContainer").style("display", "none");
+        });
         });
     </script>
 </body>
