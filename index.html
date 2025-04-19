@@ -192,8 +192,17 @@
                     });
                 }
             })
-            .on("mouseout", () => {
-                d3.select("#sliderContainer").style("display", "none");
+            .on("mouseout", (event, d) => {
+                const sliderContainer = d3.select("#sliderContainer");
+
+                // Use a timeout to allow mouse to move over the slider
+                setTimeout(() => {
+                    // Check if mouse is over the slider
+                    const isOverSlider = d3.select(event.relatedTarget).node()?.closest('#sliderContainer');
+                    if (!isOverSlider) {
+                        sliderContainer.style("display", "none");
+                    }
+                }, 100); // 100ms buffer
             });
         });
     </script>
