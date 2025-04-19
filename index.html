@@ -163,34 +163,38 @@
         csvData.forEach(d => {
             dataMap[d.id] = d;
         });
+        svg.selectAll("path")
+            .data(countries)
+            .enter().append("path")
+            .attr("class", "country")
+            .attr("d", path)
+            .on("mouseover", (event, d) => {
+                const countryData = dataMap[d.id];
+                if (countryData) {
+                    const sliderContainer = d3.select("#sliderContainer");
+                    const slider = d3.select("#dataSlider");
+                    const sliderValue = d3.select("#sliderValue");
 
-        .on("mouseover", (event, d) => {
-            const countryData = dataMap[d.id];
-            if (countryData) {
-                const sliderContainer = d3.select("#sliderContainer");
-                const slider = d3.select("#dataSlider");
-                const sliderValue = d3.select("#sliderValue");
+                    // Position the slider container
+                    sliderContainer
+                        .style("display", "block")
+                        .style("left", event.pageX + 10 + "px")
+                        .style("top", event.pageY + 10 + "px");
 
-                // Position the slider container
-                sliderContainer
-                    .style("display", "block")
-                    .style("left", event.pageX + 10 + "px")
-                    .style("top", event.pageY + 10 + "px");
+                    // Set default value and update slider display
+                    slider.property("value", 1);
+                    sliderValue.text(`Value: ${countryData["value1"]}`);
 
-                // Set default value and update slider display
-                slider.property("value", 1);
-                sliderValue.text(`Value: ${countryData["value1"]}`);
-
-                // Update on slider move
-                slider.on("input", function () {
-                    const selected = `value${this.value}`;
-                    sliderValue.text(`Value: ${countryData[selected]}`);
-                });
-            }
-        })
-        .on("mouseout", () => {
-            d3.select("#sliderContainer").style("display", "none");
-        });
+                    // Update on slider move
+                    slider.on("input", function () {
+                        const selected = `value${this.value}`;
+                        sliderValue.text(`Value: ${countryData[selected]}`);
+                    });
+                }
+            })
+            .on("mouseout", () => {
+                d3.select("#sliderContainer").style("display", "none");
+            });
         });
     </script>
 </body>
