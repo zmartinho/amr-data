@@ -114,7 +114,12 @@
     let countries;
 
     d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json").then(worldData => {
+      const countryNames = new Map();
       countries = topojson.feature(worldData, worldData.objects.countries).features;
+
+      countries.forEach(c => {
+        countryNames.set(String(c.id).padStart(3, '0'), c.properties.name);
+      });
 
       svg.selectAll("path")
         .data(countries)
@@ -123,33 +128,35 @@
         .attr("class", "country")
         .attr("d", path)
         .on("mouseover", function (event, d) {
-          const iso = String(d.id);
+          const iso = String(d.id).padStart(3, '0');
           const currentData = dataMap[iso];
 
           tooltip.style("left", (event.pageX + 10) + "px")
             .style("top", (event.pageY + 10) + "px")
             .style("display", "block");
 
-          const hasValidData = currentData && (
-            currentData.Percent_2019 || currentData.Percent_2020 ||
-            currentData.Percent_2021 || currentData.Percent_2022 ||
-            currentData.Change_19_20 || currentData.Change_20_21 || currentData.Change_21_22
-          );
+          const isValid = val => val && val !== "NaN" && val !== "null" && val !== "";
+          const countryName = currentData?.Country || countryNames.get(iso) || `Country ID: ${iso}`;
 
-          if (hasValidData) {
-            const lines = [`<strong>${currentData.Country}</strong>`];
+          if (currentData) {
+            const lines = [`<strong>${countryName}</strong>`];
 
-            if (currentData.Percent_2019) lines.push(`2019: ${currentData.Percent_2019}%`);
-            if (currentData.Percent_2020) lines.push(`2020: ${currentData.Percent_2020}%`);
-            if (currentData.Percent_2021) lines.push(`2021: ${currentData.Percent_2021}%`);
-            if (currentData.Percent_2022) lines.push(`2022: ${currentData.Percent_2022}%`);
-            if (currentData.Change_19_20) lines.push(`Change '19–'20: ${currentData.Change_19_20}%`);
-            if (currentData.Change_20_21) lines.push(`Change '20–'21: ${currentData.Change_20_21}%`);
-            if (currentData.Change_21_22) lines.push(`Change '21–'22: ${currentData.Change_21_22}%`);
+            if (isValid(currentData.Percent_2019)) lines.push(`2019: ${currentData.Percent_2019}%`);
+            if (isValid(currentData.Percent_2020)) lines.push(`2020: ${currentData.Percent_2020}%`);
+            if (isValid(currentData.Percent_2021)) lines.push(`2021: ${currentData.Percent_2021}%`);
+            if (isValid(currentData.Percent_2022)) lines.push(`2022: ${currentData.Percent_2022}%`);
 
-            tooltip.html(lines.join("<br>"));
+            if (isValid(currentData.Change_19_20)) lines.push(`Change '19–'20: ${currentData.Change_19_20}%`);
+            if (isValid(currentData.Change_20_21)) lines.push(`Change '20–'21: ${currentData.Change_20_21}%`);
+            if (isValid(currentData.Change_21_22)) lines.push(`Change '21–'22: ${currentData.Change_21_22}%`);
+
+            if (lines.length > 1) {
+              tooltip.html(lines.join("<br>"));
+            } else {
+              tooltip.html(`<strong>${countryName}</strong><br>Data unavailable`);
+            }
           } else {
-            tooltip.text("Data unavailable");
+            tooltip.html(`<strong>${countryName}</strong><br>Data unavailable`);
           }
         })
         .on("mouseout", () => {
@@ -164,7 +171,7 @@
         document.getElementById("sliderLabel").textContent = dataFiles[index].label;
         Object.keys(dataMap).forEach(k => delete dataMap[k]);
         csv.forEach(row => {
-          dataMap[String(row.id)] = row;
+          dataMap[String(row.id).padStart(3, '0')] = row;
         });
       });
     }
