@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Antimicrobial Resistance International Data</title>
 
-    <!-- Load Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
     <!-- Load D3.js and TopoJSON -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://unpkg.com/topojson@3"></script>
@@ -19,8 +16,24 @@
             margin: 20px;
         }
 
-        canvas {
-            margin: 20px 0;
+        .navbar {
+            background-color: #333;
+            overflow: hidden;
+        }
+
+        .navbar a {
+            float: left;
+            display: block;
+            color: #f2f2f2;
+            text-align: center;
+            padding: 14px 20px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .navbar a:hover {
+            background-color: #ddd;
+            color: black;
         }
 
         svg {
@@ -47,62 +60,25 @@
             font-size: 14px;
         }
 
-        #sliderContainer {
-            font-size: 14px;
-            background-color: #fff;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            z-index: 999;
-            pointer-events: auto;
-        }
-
-        #dataSlider {
-            width: 150px;
-        }
-
-        /* Style the navbar */
-        .navbar {
-            background-color: #333;
-            overflow: hidden;
-        }
-
-        .navbar a {
-            float: left;
-            display: block;
-            color: #f2f2f2;
-            text-align: center;
-            padding: 14px 20px;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        .navbar a:hover {
-            background-color: #ddd;
-            color: black;
+        #infoPanel {
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
     <h1>Antimicrobial Resistance International Data</h1>
-
-    <!-- Nav bar -->
     <div class="navbar">
         <a href="index.html">Home</a>
-        <a href="methods.html">Methods</a>
-        <a href="mission.html">Mission Statement</a>
+        <a href="methods.html">Charts</a>
+        <a href="misson.html">Interactive Map</a>
         <a href="about.html">About</a>
     </div>
 
-    <h2>Interactive World Map</h2>
+    <h2>CRE: Percentage of Cultures with AMR and Relative Changes</h2>
     <div id="map"></div>
     <div id="tooltip" class="tooltip" style="display: none;"></div>
-    <div id="sliderContainer" style="display: none; position: absolute; background: white; border: 1px solid #aaa; padding: 10px;">
-        <label for="dataSlider">Select data set:</label>
-        <input type="range" id="dataSlider" min="1" max="4" value="1">
-        <div id="sliderValue">Value: </div>
-    </div>
+    <div id="infoPanel"></div>
 
-    <!-- D3.js World Map Script -->
     <script>
         const width = 1160;
         const height = 700;
@@ -117,22 +93,19 @@
             .translate([width / 2, height / 2]);
 
         const path = d3.geoPath().projection(projection);
-
         const tooltip = d3.select("#tooltip");
 
         Promise.all([
             d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json"),
-            d3.csv("data.csv")
+            d3.csv("CRE_data.csv")
         ]).then(([worldData, csvData]) => {
             const countries = topojson.feature(worldData, worldData.objects.countries).features;
 
-            // Convert CSV data to a map keyed by country ID
+            // Convert CSV data to a map keyed by country name
             const dataMap = {};
             csvData.forEach(d => {
-                dataMap[d.id] = d;
+                dataMap[d["Region/Country"]] = d;
             });
-
-            let activeTimeout;
 
             svg.selectAll("path")
                 .data(countries)
@@ -140,44 +113,24 @@
                 .attr("class", "country")
                 .attr("d", path)
                 .on("mouseover", (event, d) => {
-                    clearTimeout(activeTimeout);
-
-                    const countryData = dataMap[d.id];
-                    if (countryData) {
-                        const sliderContainer = d3.select("#sliderContainer");
-                        const slider = d3.select("#dataSlider");
-                        const sliderValue = d3.select("#sliderValue");
-
-                        sliderContainer
+                    const name = d.properties.name;
+                    const data = dataMap[name];
+                    if (data) {
+                        tooltip
                             .style("display", "block")
                             .style("left", event.pageX + 10 + "px")
-                            .style("top", event.pageY + 10 + "px");
-
-                        slider.property("value", 1);
-                        sliderValue.text(`Value: ${countryData["value1"]}`);
-
-                        slider.on("input", function () {
-                            const selected = `value${this.value}`;
-                            sliderValue.text(`Value: ${countryData[selected]}`);
-                        });
+                            .style("top", event.pageY + 10 + "px")
+                            .html(`<strong>${name}</strong><br>
+                                AMR 2020: ${data["Percentage of cultures with AMR 2020"]}%<br>
+                                AMR 2021: ${data["Percentage of cultures with AMR 2021"]}%<br>
+                                AMR 2022: ${data["Percentage of cultures with AMR 2022"]}%<br>
+                                Change 2020-21: ${data["Relative percent change 2020-2021"]}%<br>
+                                Change 2021-22: ${data["Relative percent change 2021-2022"]}%`);
                     }
                 })
                 .on("mouseout", () => {
-                    activeTimeout = setTimeout(() => {
-                        const sliderContainer = document.getElementById("sliderContainer");
-                        if (!sliderContainer.matches(":hover")) {
-                            sliderContainer.style.display = "none";
-                        }
-                    }, 300);
+                    tooltip.style("display", "none");
                 });
-
-            document.getElementById("sliderContainer").addEventListener("mouseleave", () => {
-                document.getElementById("sliderContainer").style.display = "none";
-            });
-
-            document.getElementById("sliderContainer").addEventListener("mouseenter", () => {
-                clearTimeout(activeTimeout);
-            });
         });
     </script>
 </body>
