@@ -130,25 +130,24 @@
             .style("top", (event.pageY + 10) + "px")
             .style("display", "block");
 
-          if (currentData) {
-            const lines = [
-              `<strong>${currentData.Country}</strong>`
-            ];
+          const hasValidData = currentData && (
+            currentData.Percent_2019 || currentData.Percent_2020 ||
+            currentData.Percent_2021 || currentData.Percent_2022 ||
+            currentData.Change_19_20 || currentData.Change_20_21 || currentData.Change_21_22
+          );
+
+          if (hasValidData) {
+            const lines = [`<strong>${currentData.Country}</strong>`];
 
             if (currentData.Percent_2019) lines.push(`2019: ${currentData.Percent_2019}%`);
             if (currentData.Percent_2020) lines.push(`2020: ${currentData.Percent_2020}%`);
             if (currentData.Percent_2021) lines.push(`2021: ${currentData.Percent_2021}%`);
             if (currentData.Percent_2022) lines.push(`2022: ${currentData.Percent_2022}%`);
-
             if (currentData.Change_19_20) lines.push(`Change '19–'20: ${currentData.Change_19_20}%`);
             if (currentData.Change_20_21) lines.push(`Change '20–'21: ${currentData.Change_20_21}%`);
             if (currentData.Change_21_22) lines.push(`Change '21–'22: ${currentData.Change_21_22}%`);
 
-            if (lines.length > 1) {
-              tooltip.html(lines.join("<br>"));
-            } else {
-              tooltip.text("Data unavailable");
-            }
+            tooltip.html(lines.join("<br>"));
           } else {
             tooltip.text("Data unavailable");
           }
