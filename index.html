@@ -58,6 +58,14 @@
       pointer-events: none;
       display: none;
     }
+
+    #sliderContainer {
+      margin-top: 20px;
+    }
+
+    #dataSlider {
+      width: 300px;
+    }
   </style>
 </head>
 <body>
@@ -68,6 +76,12 @@
     <a href="chart.html">Charts</a>
     <a href="map.html">Interactive Map</a>
     <a href="about.html">About</a>
+  </div>
+
+  <div id="sliderContainer">
+    <label for="dataSlider"><strong>Select Infection/Antibiotic:</strong></label>
+    <input type="range" id="dataSlider" min="0" max="3" step="1" value="0">
+    <div id="sliderLabel">Carbapenem Resistant Enterobacterales (CRE)</div>
   </div>
 
   <div id="map"></div>
@@ -87,9 +101,15 @@
       .translate([width / 2, height / 2]);
 
     const path = d3.geoPath().projection(projection);
-
     const tooltip = d3.select("#tooltip");
     const dataMap = {};
+
+    const dataFiles = [
+      { label: "Carbapenem Resistant Enterobacterales (CRE)", file: "data/cre_cleaned.csv" },
+      { label: "Extended-Spectrum Beta-Lactamase (ESBL)", file: "data/esbl_cleaned.csv" },
+      { label: "Methicillin-resistant Staphylococcus aureus (MRSA)", file: "data/mrsa_cleaned.csv" },
+      { label: "Carbapenem-resistant Acinetobacter (CRA)", file: "data/cra_cleaned.csv" }
+    ];
 
     let countries;
 
@@ -103,7 +123,7 @@
         .attr("class", "country")
         .attr("d", path)
         .on("mouseover", function (event, d) {
-          const iso = d.id;
+          const iso = String(d.id);
           const currentData = dataMap[iso];
           if (currentData) {
             tooltip.style("left", (event.pageX + 10) + "px")
@@ -117,23 +137,34 @@
                 Change '20–'21: ${currentData.Change_20_21 || "N/A"}%<br>
                 Change '21–'22: ${currentData.Change_21_22 || "N/A"}%
               `);
+          } else {
+            tooltip.style("left", (event.pageX + 10) + "px")
+              .style("top", (event.pageY + 10) + "px")
+              .style("display", "block")
+              .text("Data unavailable");
           }
         })
         .on("mouseout", () => {
           tooltip.style("display", "none");
         });
 
-      loadCSV();
+      loadCSV(0);
     });
 
-    function loadCSV() {
-        d3.csv("cre_cleaned.csv").then(csv => {
-            console.log("Loaded CSV rows:", csv.length); // Debug
-            csv.forEach(row => {
-            dataMap[String(row.id)] = row;  // Force key to string
-            });
+    function loadCSV(index) {
+      d3.csv(dataFiles[index].file).then(csv => {
+        document.getElementById("sliderLabel").textContent = dataFiles[index].label;
+        Object.keys(dataMap).forEach(k => delete dataMap[k]);
+        csv.forEach(row => {
+          dataMap[String(row.id)] = row;
         });
-        }
+      });
+    }
+
+    d3.select("#dataSlider").on("input", function () {
+      const selectedIndex = +this.value;
+      loadCSV(selectedIndex);
+    });
   </script>
 </body>
 </html>
