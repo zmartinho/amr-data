@@ -141,14 +141,14 @@
           if (currentData) {
             const lines = [`<strong>${countryName}</strong>`];
 
-            if (isValid(currentData.Percent_2019)) lines.push(`2019: ${currentData.Percent_2019}%`);
-            if (isValid(currentData.Percent_2020)) lines.push(`2020: ${currentData.Percent_2020}%`);
-            if (isValid(currentData.Percent_2021)) lines.push(`2021: ${currentData.Percent_2021}%`);
-            if (isValid(currentData.Percent_2022)) lines.push(`2022: ${currentData.Percent_2022}%`);
+            if (isValid(currentData.Percent_2019)) lines.push(`Percentage of cultures with AMR in 2019: ${currentData.Percent_2019}%`);
+            if (isValid(currentData.Percent_2020)) lines.push(`Percentage of cultures with AMR in 2020: ${currentData.Percent_2020}%`);
+            if (isValid(currentData.Percent_2021)) lines.push(`Percentage of cultures with AMR in 2021: ${currentData.Percent_2021}%`);
+            if (isValid(currentData.Percent_2022)) lines.push(`Percentage of cultures with AMR in 2022: ${currentData.Percent_2022}%`);
 
-            if (isValid(currentData.Change_19_20)) lines.push(`Change '19–'20: ${currentData.Change_19_20}%`);
-            if (isValid(currentData.Change_20_21)) lines.push(`Change '20–'21: ${currentData.Change_20_21}%`);
-            if (isValid(currentData.Change_21_22)) lines.push(`Change '21–'22: ${currentData.Change_21_22}%`);
+            if (isValid(currentData.Change_19_20)) lines.push(`Relative percent change 2019–2020: ${currentData.Change_19_20}%`);
+            if (isValid(currentData.Change_20_21)) lines.push(`Relative percent change 2020–2021: ${currentData.Change_20_21}%`);
+            if (isValid(currentData.Change_21_22)) lines.push(`Relative percent change 2021–2022: ${currentData.Change_21_22}%`);
 
             if (lines.length > 1) {
               tooltip.html(lines.join("<br>"));
