@@ -40,12 +40,11 @@
     }
 
     .country {
-      fill: #ccc;
       stroke: #fff;
     }
 
     .country:hover {
-      fill: steelblue;
+      stroke: black;
       cursor: pointer;
     }
 
@@ -73,13 +72,13 @@
 
   <div class="navbar">
     <a href="index.html">Home</a>
-    <a href="mission.html">Mission</a>
-    <a href="methods.html">Methods</a>
+    <a href="chart.html">Charts</a>
+    <a href="map.html">Interactive Map</a>
     <a href="about.html">About</a>
   </div>
 
   <div id="sliderContainer">
-    <label for="dataSlider"><strong>Select Microorganism and Antibiotic:</strong></label>
+    <label for="dataSlider"><strong>Select Infection/Antibiotic:</strong></label>
     <input type="range" id="dataSlider" min="0" max="3" step="1" value="0">
     <div id="sliderLabel">Carbapenem Resistant Enterobacterales (CRE)</div>
   </div>
@@ -112,6 +111,9 @@
     ];
 
     let countries;
+    let countryPaths;
+
+    const colorScale = d3.scaleSequential(d3.interpolateTurbo).domain([0, 100]);
 
     d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json").then(worldData => {
       const countryNames = new Map();
@@ -121,7 +123,7 @@
         countryNames.set(String(c.id).padStart(3, '0'), c.properties.name);
       });
 
-      svg.selectAll("path")
+      countryPaths = svg.selectAll("path")
         .data(countries)
         .enter()
         .append("path")
@@ -173,6 +175,13 @@
         csv.forEach(row => {
           dataMap[String(row.id).padStart(3, '0')] = row;
         });
+
+        countryPaths.transition().duration(500)
+          .attr("fill", d => {
+            const iso = String(d.id).padStart(3, '0');
+            const val = parseFloat(dataMap[iso]?.Percent_2022);
+            return isNaN(val) ? "#ccc" : colorScale(val);
+          });
       });
     }
 
@@ -183,3 +192,4 @@
   </script>
 </body>
 </html>
+
