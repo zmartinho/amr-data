@@ -239,53 +239,57 @@
     });
 
     function createLegend() {
-      const legendHeight = 300;
-      const legendWidth = 20;
+        const legendHeight = 300;
+        const legendWidth = 20;
 
-      const legendSvg = d3.select("#legend")
+        const legendSvg = d3.select("#legend")
         .append("svg")
-        .attr("width", 80)
-        .attr("height", legendHeight + 50);
+        .attr("width", 100)
+        .attr("height", legendHeight + 70); // was +50 before, now +70 for more space
 
-      const defs = legendSvg.append("defs");
+        // Gradient
+        const defs = legendSvg.append("defs");
 
-      const linearGradient = defs.append("linearGradient")
+        const linearGradient = defs.append("linearGradient")
         .attr("id", "linear-gradient")
         .attr("x1", "0%")
         .attr("y1", "100%")
         .attr("x2", "0%")
         .attr("y2", "0%");
 
-      const stops = d3.range(0, 1.01, 0.01).map(d => ({
+        // Gradient stops
+        const stops = d3.range(0, 1.01, 0.01).map(d => ({
         offset: `${d * 100}%`,
         color: d3.interpolateTurbo(d)
-      }));
+        }));
 
-      linearGradient.selectAll("stop")
+        linearGradient.selectAll("stop")
         .data(stops)
         .enter().append("stop")
         .attr("offset", d => d.offset)
         .attr("stop-color", d => d.color);
 
-      legendSvg.append("rect")
-        .attr("x", 30)
-        .attr("y", 0)
+        // Color bar
+        legendSvg.append("rect")
+        .attr("x", 40)
+        .attr("y", 20)             // 🔥 shift the color bar down a little (was 0 before)
         .attr("width", legendWidth)
         .attr("height", legendHeight)
         .style("fill", "url(#linear-gradient)");
 
-      const scale = d3.scaleLinear()
+        // Axis
+        const scale = d3.scaleLinear()
         .domain([0, 100])
         .range([legendHeight, 0]);
 
-      const axis = d3.axisRight(scale)
+        const axis = d3.axisRight(scale)
         .ticks(5)
         .tickFormat(d => d + "%");
 
-      legendSvg.append("g")
-        .attr("transform", "translate(50,0)")
+        legendSvg.append("g")
+        .attr("transform", "translate(60,20)") // 🔥 match the y-offset here too
         .call(axis);
-    }
+            }
   </script>
 
 </body>
