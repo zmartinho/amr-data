@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -87,42 +88,42 @@
   <div id="tooltip" class="tooltip"></div>
 
   <script>
-    const width = 1160;
-    const height = 700;
-
+    const svgWidth = 960;
+    const svgHeight = 500;
+    
     const svg = d3.select("#map")
       .append("svg")
-      .attr("width", width)
-      .attr("height", height);
-
+      .attr("viewBox", `0 0 ${svgWidth} ${svgHeight}`)
+      .attr("preserveAspectRatio", "xMidYMid meet");
+    
     const projection = d3.geoNaturalEarth1()
       .scale(160)
-      .translate([width / 2, height / 2]);
-
+      .translate([svgWidth / 2, svgHeight / 2]);
+    
     const path = d3.geoPath().projection(projection);
     const tooltip = d3.select("#tooltip");
     const dataMap = {};
-
+    
     const dataFiles = [
       { label: "Carbapenem Resistant Enterobacterales (CRE)", file: "data/cre_cleaned.csv" },
       { label: "Extended-Spectrum Beta-Lactamase (ESBL)", file: "data/esbl_cleaned.csv" },
       { label: "Methicillin-resistant Staphylococcus aureus (MRSA)", file: "data/mrsa_cleaned.csv" },
       { label: "Carbapenem-resistant Acinetobacter (CRA)", file: "data/cra_cleaned.csv" }
     ];
-
+    
     let countries;
     let countryPaths;
-
+    
     const colorScale = d3.scaleSequential(d3.interpolateTurbo).domain([0, 100]);
-
+    
     d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json").then(worldData => {
       const countryNames = new Map();
       countries = topojson.feature(worldData, worldData.objects.countries).features;
-
+    
       countries.forEach(c => {
         countryNames.set(String(c.id).padStart(3, '0'), c.properties.name);
       });
-
+    
       countryPaths = svg.selectAll("path")
         .data(countries)
         .enter()
@@ -132,31 +133,33 @@
         .on("mouseover", function (event, d) {
           const iso = String(d.id).padStart(3, '0');
           const currentData = dataMap[iso];
-
+    
           tooltip.style("left", (event.pageX + 10) + "px")
             .style("top", (event.pageY + 10) + "px")
             .style("display", "block");
-
+    
           const isValid = val => val && val !== "NaN" && val !== "null" && val !== "";
+    
           const countryName = currentData?.Country || countryNames.get(iso) || `Country ID: ${iso}`;
-
+    
           if (currentData) {
             const lines = [`<strong>${countryName}</strong>`];
-
+    
             if (isValid(currentData.Percent_2019)) lines.push(`Percentage of cultures with AMR in 2019: ${currentData.Percent_2019}%`);
             if (isValid(currentData.Percent_2020)) lines.push(`Percentage of cultures with AMR in 2020: ${currentData.Percent_2020}%`);
             if (isValid(currentData.Percent_2021)) lines.push(`Percentage of cultures with AMR in 2021: ${currentData.Percent_2021}%`);
             if (isValid(currentData.Percent_2022)) lines.push(`Percentage of cultures with AMR in 2022: ${currentData.Percent_2022}%`);
-
+    
             if (isValid(currentData.Change_19_20)) lines.push(`Relative percent change 2019–2020: ${currentData.Change_19_20}%`);
             if (isValid(currentData.Change_20_21)) lines.push(`Relative percent change 2020–2021: ${currentData.Change_20_21}%`);
             if (isValid(currentData.Change_21_22)) lines.push(`Relative percent change 2021–2022: ${currentData.Change_21_22}%`);
-
-            if (lines.length > 1) {
-              tooltip.html(lines.join("<br>"));
-            } else {
-              tooltip.html(`<strong>${countryName}</strong><br>Data unavailable`);
+    
+            const displayYear = getLatestYear(currentData);
+            if (displayYear) {
+              lines.unshift(`<em>Showing data from ${displayYear}</em>`);
             }
+    
+            tooltip.html(lines.join("<br>"));
           } else {
             tooltip.html(`<strong>${countryName}</strong><br>Data unavailable`);
           }
@@ -164,10 +167,27 @@
         .on("mouseout", () => {
           tooltip.style("display", "none");
         });
-
+    
       loadCSV(0);
     });
-
+    
+    function getLatestValue(d) {
+      if (isValid(d.Percent_2022)) return { value: parseFloat(d.Percent_2022), year: 2022 };
+      if (isValid(d.Percent_2021)) return { value: parseFloat(d.Percent_2021), year: 2021 };
+      if (isValid(d.Percent_2020)) return { value: parseFloat(d.Percent_2020), year: 2020 };
+      if (isValid(d.Percent_2019)) return { value: parseFloat(d.Percent_2019), year: 2019 };
+      return { value: null, year: null };
+    }
+    
+    function getLatestYear(d) {
+      const info = getLatestValue(d);
+      return info.year;
+    }
+    
+    function isValid(val) {
+      return val && val !== "NaN" && val !== "null" && val !== "";
+    }
+    
     function loadCSV(index) {
       d3.csv(dataFiles[index].file).then(csv => {
         document.getElementById("sliderLabel").textContent = dataFiles[index].label;
@@ -175,21 +195,23 @@
         csv.forEach(row => {
           dataMap[String(row.id).padStart(3, '0')] = row;
         });
-
+    
         countryPaths.transition().duration(500)
           .attr("fill", d => {
             const iso = String(d.id).padStart(3, '0');
-            const val = parseFloat(dataMap[iso]?.Percent_2022);
-            return isNaN(val) ? "#ccc" : colorScale(val);
+            const currentData = dataMap[iso];
+            if (!currentData) return "#ccc";
+            const { value } = getLatestValue(currentData);
+            return isNaN(value) ? "#ccc" : colorScale(value);
           });
       });
     }
-
+    
     d3.select("#dataSlider").on("input", function () {
       const selectedIndex = +this.value;
       loadCSV(selectedIndex);
     });
-  </script>
+    </script>
 </body>
 </html>
 
