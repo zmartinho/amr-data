@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,6 +12,8 @@
     body {
       font-family: Arial, sans-serif;
       text-align: center;
+      margin: 0;
+      padding: 0;
     }
 
     .navbar {
@@ -35,10 +36,37 @@
       color: black;
     }
 
-    svg {
-      width: 100%;
-      height: auto;
+    #sliderContainer {
+      margin: 20px 0;
     }
+
+    #dataSlider {
+      width: 300px;
+    }
+
+    #map-container {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        gap: 30px;
+        padding: 20px;
+        flex-wrap: wrap;
+        }
+
+    #map {
+        flex: 2; /* map is 2x wider than legend */
+        min-width: 600px;
+        }
+
+    #legend {
+        flex: 1; /* legend is 1x width */
+        min-width: 150px;
+        }
+
+    #map svg {
+        width: 100%;
+        height: auto;
+        }
 
     .country {
       stroke: #fff;
@@ -47,6 +75,17 @@
     .country:hover {
       stroke: black;
       cursor: pointer;
+    }
+
+    #legend {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #legendTitle {
+      font-weight: bold;
+      margin-bottom: 10px;
     }
 
     .tooltip {
@@ -58,16 +97,9 @@
       pointer-events: none;
       display: none;
     }
-
-    #sliderContainer {
-      margin-top: 20px;
-    }
-
-    #dataSlider {
-      width: 300px;
-    }
   </style>
 </head>
+
 <body>
   <h1>Antimicrobial Resistance World Map</h1>
 
@@ -79,51 +111,57 @@
   </div>
 
   <div id="sliderContainer">
-    <label for="dataSlider"><strong>Select Infection/Antibiotic:</strong></label>
+    <label for="dataSlider"><strong>Select Infection/Antibiotic:</strong></label><br>
     <input type="range" id="dataSlider" min="0" max="3" step="1" value="0">
     <div id="sliderLabel">Carbapenem Resistant Enterobacterales (CRE)</div>
   </div>
 
-  <div id="map"></div>
+  <div id="map-container">
+    <div id="map"></div>
+    <div id="legend">
+      <div id="legendTitle">AMR Percentage</div>
+    </div>
+  </div>
+
   <div id="tooltip" class="tooltip"></div>
 
   <script>
     const svgWidth = 960;
     const svgHeight = 500;
-    
+
     const svg = d3.select("#map")
       .append("svg")
       .attr("viewBox", `0 0 ${svgWidth} ${svgHeight}`)
       .attr("preserveAspectRatio", "xMidYMid meet");
-    
+
     const projection = d3.geoNaturalEarth1()
       .scale(160)
       .translate([svgWidth / 2, svgHeight / 2]);
-    
+
     const path = d3.geoPath().projection(projection);
     const tooltip = d3.select("#tooltip");
     const dataMap = {};
-    
+
     const dataFiles = [
       { label: "Carbapenem Resistant Enterobacterales (CRE)", file: "data/cre_cleaned.csv" },
       { label: "Extended-Spectrum Beta-Lactamase (ESBL)", file: "data/esbl_cleaned.csv" },
       { label: "Methicillin-resistant Staphylococcus aureus (MRSA)", file: "data/mrsa_cleaned.csv" },
       { label: "Carbapenem-resistant Acinetobacter (CRA)", file: "data/cra_cleaned.csv" }
     ];
-    
+
     let countries;
     let countryPaths;
-    
+
     const colorScale = d3.scaleSequential(d3.interpolateTurbo).domain([0, 100]);
-    
+
     d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json").then(worldData => {
       const countryNames = new Map();
       countries = topojson.feature(worldData, worldData.objects.countries).features;
-    
+
       countries.forEach(c => {
         countryNames.set(String(c.id).padStart(3, '0'), c.properties.name);
       });
-    
+
       countryPaths = svg.selectAll("path")
         .data(countries)
         .enter()
@@ -133,32 +171,24 @@
         .on("mouseover", function (event, d) {
           const iso = String(d.id).padStart(3, '0');
           const currentData = dataMap[iso];
-    
+
           tooltip.style("left", (event.pageX + 10) + "px")
             .style("top", (event.pageY + 10) + "px")
             .style("display", "block");
-    
+
           const isValid = val => val && val !== "NaN" && val !== "null" && val !== "";
-    
+
           const countryName = currentData?.Country || countryNames.get(iso) || `Country ID: ${iso}`;
-    
+
           if (currentData) {
             const lines = [`<strong>${countryName}</strong>`];
-    
-            if (isValid(currentData.Percent_2019)) lines.push(`Percentage of cultures with AMR in 2019: ${currentData.Percent_2019}%`);
-            if (isValid(currentData.Percent_2020)) lines.push(`Percentage of cultures with AMR in 2020: ${currentData.Percent_2020}%`);
-            if (isValid(currentData.Percent_2021)) lines.push(`Percentage of cultures with AMR in 2021: ${currentData.Percent_2021}%`);
-            if (isValid(currentData.Percent_2022)) lines.push(`Percentage of cultures with AMR in 2022: ${currentData.Percent_2022}%`);
-    
-            if (isValid(currentData.Change_19_20)) lines.push(`Relative percent change 2019–2020: ${currentData.Change_19_20}%`);
-            if (isValid(currentData.Change_20_21)) lines.push(`Relative percent change 2020–2021: ${currentData.Change_20_21}%`);
-            if (isValid(currentData.Change_21_22)) lines.push(`Relative percent change 2021–2022: ${currentData.Change_21_22}%`);
-    
-            const displayYear = getLatestYear(currentData);
-            if (displayYear) {
-              lines.unshift(`<em>Showing data from ${displayYear}</em>`);
-            }
-    
+            if (isValid(currentData.Percent_2019)) lines.push(`AMR 2019: ${currentData.Percent_2019}%`);
+            if (isValid(currentData.Percent_2020)) lines.push(`AMR 2020: ${currentData.Percent_2020}%`);
+            if (isValid(currentData.Percent_2021)) lines.push(`AMR 2021: ${currentData.Percent_2021}%`);
+            if (isValid(currentData.Percent_2022)) lines.push(`AMR 2022: ${currentData.Percent_2022}%`);
+            if (isValid(currentData.Change_19_20)) lines.push(`Change 2019–2020: ${currentData.Change_19_20}%`);
+            if (isValid(currentData.Change_20_21)) lines.push(`Change 2020–2021: ${currentData.Change_20_21}%`);
+            if (isValid(currentData.Change_21_22)) lines.push(`Change 2021–2022: ${currentData.Change_21_22}%`);
             tooltip.html(lines.join("<br>"));
           } else {
             tooltip.html(`<strong>${countryName}</strong><br>Data unavailable`);
@@ -167,27 +197,11 @@
         .on("mouseout", () => {
           tooltip.style("display", "none");
         });
-    
-      loadCSV(0);
+
+      loadCSV(0); // only load CSV after the map is drawn
+      createLegend(); // call legend only once!
     });
-    
-    function getLatestValue(d) {
-      if (isValid(d.Percent_2022)) return { value: parseFloat(d.Percent_2022), year: 2022 };
-      if (isValid(d.Percent_2021)) return { value: parseFloat(d.Percent_2021), year: 2021 };
-      if (isValid(d.Percent_2020)) return { value: parseFloat(d.Percent_2020), year: 2020 };
-      if (isValid(d.Percent_2019)) return { value: parseFloat(d.Percent_2019), year: 2019 };
-      return { value: null, year: null };
-    }
-    
-    function getLatestYear(d) {
-      const info = getLatestValue(d);
-      return info.year;
-    }
-    
-    function isValid(val) {
-      return val && val !== "NaN" && val !== "null" && val !== "";
-    }
-    
+
     function loadCSV(index) {
       d3.csv(dataFiles[index].file).then(csv => {
         document.getElementById("sliderLabel").textContent = dataFiles[index].label;
@@ -195,23 +209,84 @@
         csv.forEach(row => {
           dataMap[String(row.id).padStart(3, '0')] = row;
         });
-    
+
         countryPaths.transition().duration(500)
           .attr("fill", d => {
             const iso = String(d.id).padStart(3, '0');
             const currentData = dataMap[iso];
             if (!currentData) return "#ccc";
-            const { value } = getLatestValue(currentData);
+            const value = getLatestValue(currentData);
             return isNaN(value) ? "#ccc" : colorScale(value);
           });
       });
     }
-    
+
+    function getLatestValue(d) {
+      if (isValid(d.Percent_2022)) return parseFloat(d.Percent_2022);
+      if (isValid(d.Percent_2021)) return parseFloat(d.Percent_2021);
+      if (isValid(d.Percent_2020)) return parseFloat(d.Percent_2020);
+      if (isValid(d.Percent_2019)) return parseFloat(d.Percent_2019);
+      return NaN;
+    }
+
+    function isValid(val) {
+      return val && val !== "NaN" && val !== "null" && val !== "";
+    }
+
     d3.select("#dataSlider").on("input", function () {
       const selectedIndex = +this.value;
       loadCSV(selectedIndex);
     });
-    </script>
+
+    function createLegend() {
+      const legendHeight = 300;
+      const legendWidth = 20;
+
+      const legendSvg = d3.select("#legend")
+        .append("svg")
+        .attr("width", 80)
+        .attr("height", legendHeight + 50);
+
+      const defs = legendSvg.append("defs");
+
+      const linearGradient = defs.append("linearGradient")
+        .attr("id", "linear-gradient")
+        .attr("x1", "0%")
+        .attr("y1", "100%")
+        .attr("x2", "0%")
+        .attr("y2", "0%");
+
+      const stops = d3.range(0, 1.01, 0.01).map(d => ({
+        offset: `${d * 100}%`,
+        color: d3.interpolateTurbo(d)
+      }));
+
+      linearGradient.selectAll("stop")
+        .data(stops)
+        .enter().append("stop")
+        .attr("offset", d => d.offset)
+        .attr("stop-color", d => d.color);
+
+      legendSvg.append("rect")
+        .attr("x", 30)
+        .attr("y", 0)
+        .attr("width", legendWidth)
+        .attr("height", legendHeight)
+        .style("fill", "url(#linear-gradient)");
+
+      const scale = d3.scaleLinear()
+        .domain([0, 100])
+        .range([legendHeight, 0]);
+
+      const axis = d3.axisRight(scale)
+        .ticks(5)
+        .tickFormat(d => d + "%");
+
+      legendSvg.append("g")
+        .attr("transform", "translate(50,0)")
+        .call(axis);
+    }
+  </script>
+
 </body>
 </html>
-
