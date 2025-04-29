@@ -101,7 +101,7 @@
 </head>
 
 <body>
-  <h1>Antimicrobial Resistance World Map</h1>
+  <h1>Global AMR - Antimicrobial Resistance World Map</h1>
 
   <div class="navbar">
     <a href="index.html">Home</a>
@@ -109,6 +109,11 @@
     <a href="methods.html">Methods</a>
     <a href="about.html">About</a>
     <a href="download.html">Download Data</a>
+  </div>
+  <div id="intro" style="max-width: 800px; margin: 20px auto; padding: 0 20px; text-align: left;">
+    <p>
+      <strong>Global AMR</strong> tracks antimicrobial resistance (AMR) around the world. Use the slider to explore resistance rates for different pathogens and antibiotics. The map displays the <em>percentage of tested cultures that were resistant</em> for each country and year. Countries with brighter colors have higher resistance. Gray countries have no available data.
+    </p>
   </div>
 
   <div id="sliderContainer">
@@ -183,13 +188,13 @@
 
           if (currentData) {
             const lines = [`<strong>${countryName}</strong>`];
-            if (isValid(currentData.Percent_2019)) lines.push(`AMR 2019: ${currentData.Percent_2019}%`);
-            if (isValid(currentData.Percent_2020)) lines.push(`AMR 2020: ${currentData.Percent_2020}%`);
-            if (isValid(currentData.Percent_2021)) lines.push(`AMR 2021: ${currentData.Percent_2021}%`);
-            if (isValid(currentData.Percent_2022)) lines.push(`AMR 2022: ${currentData.Percent_2022}%`);
-            if (isValid(currentData.Change_19_20)) lines.push(`Change 2019–2020: ${currentData.Change_19_20}%`);
-            if (isValid(currentData.Change_20_21)) lines.push(`Change 2020–2021: ${currentData.Change_20_21}%`);
-            if (isValid(currentData.Change_21_22)) lines.push(`Change 2021–2022: ${currentData.Change_21_22}%`);
+            if (isValid(currentData.Percent_2019)) lines.push(`Percentage of AMR 2019: ${currentData.Percent_2019}%`);
+            if (isValid(currentData.Percent_2020)) lines.push(`Percentage of AMR 2020: ${currentData.Percent_2020}%`);
+            if (isValid(currentData.Percent_2021)) lines.push(`Percentage of AMR 2021: ${currentData.Percent_2021}%`);
+            if (isValid(currentData.Percent_2022)) lines.push(`Percentage of AMR 2022: ${currentData.Percent_2022}%`);
+            if (isValid(currentData.Change_19_20)) lines.push(`Percent Relative Change 2019–2020: ${currentData.Change_19_20}%`);
+            if (isValid(currentData.Change_20_21)) lines.push(`Percent Relative Change 2020–2021: ${currentData.Change_20_21}%`);
+            if (isValid(currentData.Change_21_22)) lines.push(`Percent Relative Change 2021–2022: ${currentData.Change_21_22}%`);
             tooltip.html(lines.join("<br>"));
           } else {
             tooltip.html(`<strong>${countryName}</strong><br>Data unavailable`);
