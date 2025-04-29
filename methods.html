@@ -68,37 +68,60 @@
 
     <!-- Content -->
     <div class="container">
-        <h1>About This Project</h1>
+        <h1>Methods</h1>
         <p>
-            This website provides an interactive platform for exploring global data on antimicrobial resistance (AMR).
-            It allows users to view and compare data from different microorganisms across countries using both map and chart visualizations.
+            Below, we explain how we gather and process data from international health organizations to present a comprehensive picture of AMR changes throughout the last few years. 
         </p>
 
-        <h2>Objectives</h2>
-        <ul>
-            <li>To visualize AMR trends across different regions and microorganisms.</li>
-            <li>To offer accessible and educational tools for public health professionals and students.</li>
-            <li>To promote awareness of AMR as a global health concern.</li>
+        <h2>Gathering Data</h2>
+        <p>
+                Country-level data were extracted from the EU CDC’s 2022 supplemental data report,[1] the PAHO public dashboard, [2] and the 
+            WHO GLASS public dashboard (2020-2022).[3] While the EU CDC and PAHO reported data from 2019-2022, the WHO GLASS public dashboard only included data 
+            from 2020-2022, so 2019 data and subsequent calculations are only reported for Central and South America and Europe.  CRE, ESBL-producing Enterobacterales, 
+            MRSA, and CRA were selected as the MDROs of interest as all were robustly reported on by the three data sources. The EU CDC and WHO GLASS did not distinguish 
+            between community onset and hospital onset infections, so our analysis did not distinguish between the location of onset. The PAHO also did not distinguish between 
+            community and hospital onset except for in the case of MRSA which were combined in our analysis. While the PAHO and WHO GLASS data sets reported cultures 
+            resistant to Imipenem and Meropenem separately which were summed to calculate total carbapenem resistant cultures and total cultures sent, the EU CDC 
+            reported Imipenem and Meropenem together. To account for this difference, we multiplied the EU CDC carbapenem resistant culture counts by two to approximate as 
+            if the EU CDC had also reported resistant Imipenem and Meropenem culture counts separately. While this does not affect the AMR proportion, 
+            it does allow for more accurate direct comparisons of AMR surveillance intensity. A similar approach was used for ESBL-producing Enterobacterales
+             culture data with an adjustment multiplier of three, as the EU CDC reported Cefotaxime, Ceftriaxone, and Ceftazidime together, while the PAHO and WHO GLASS 
+             reported culture data for each 3rd generation cephalosporin separately. The EU CDC and WHO GLASS data sets did not include intermediate resistance data while 
+             the PAHO data set did. To provide the most conservative interpretation of the data, only PAHO reported cultures which were unambiguously resistant were counted 
+             as AMR positive cultures.
+        </p>
+        <p> 
+                Finally, the United States Centers for Disease Control and Prevention’s (US CDC) models MDRO incidence using cases per hospital discharge based on proprietary data sources, 
+            the Premier Healthcare Database[4] and the BD Insights Research Database[5] which were not publicly available. The US CDC most recently published an AMR fact 
+            sheet in July of 2024[21] although this fact sheet only reported “increase, decrease or stable” for each MDRO, lacking effect sizes, measures of statistical 
+            significance, or details on the methods used to calculate these trends. The US CDC’s most recent report which included effect sizes and measures of statistical 
+            significance was published in 2022 and provided data for 2019 and 2020. [5] In this report, the US CDC’s model controlled for hospital characteristics, month of discharge, 
+            age group of patients, and sex of patients. While few specific details are publicly known of  the US CDC’s model, we outline what is known in the supplemental 
+            materials. Because the US CDC does not report raw culture data unlike the EU CDC, the PAHO, or the WHO GLASS, the United States could not be included in our 
+            analysis.
+           
+        </p>
+        <h2>PSIMP Analysis</h2>
+        <p>Mathematical analysis of raw data involved multiplying each hospital's AMR percentage by its district's population relative to the population of the country. Further details of the statistical analysis 
+            and justifications for our methods will be available in a published research paper in the final process of editing. 
+        </p>
+
+        <h2>References</h2>
+        <p>
+        <ul>1. European Centre for Disease Prevention and Control.; World Health Organization. Antimicrobial Resistance Surveillance in Europe 2023: 2021 Data.; Publications Office: LU, 2023;
+
         </ul>
-
-        <h2>Data Sources</h2>
-        <p>
-            The data used in this site is sourced from reputable global health organizations and research groups including the WHO, .
-            Each CSV file represents AMR statistics for a specific microorganism, broken down by country.
-        </p>
-
-        <h2>Built With</h2>
-        <ul>
-            <li><strong>HTML/CSS</strong> for page structure and design</li>
-            <li><strong>D3.js</strong> for interactive map visualizations</li>
-            <li><strong>Chart.js</strong> for generating charts</li>
+        <ul>2. Gutiérrez, L.A.; https://www.facebook.com/pahowho PAHO/WHO Data - 2. Resistance percentages for selected pathogens | PAHO/WHO Available online: https://www3.paho.org/data/index.php/en/mnu-topics/antimicrobial-resistance/571-amr-vig-en.html (accessed on 8 December 2024).
         </ul>
+        <ul>3. WHO GLASS Dashboard Available online: https://worldhealthorg.shinyapps.io/glass-dashboard/ (accessed on 8 December 2024).
+        </ul>
+        <ul>4. 	COVID-19: U.S. Impact on Antimicrobial Resistance, Special Report 2022; National Center for Emerging and Zoonotic Infectious Diseases, 2022;
 
-        <h2>Author</h2>
-        <p>
-            This project was developed by researchers at Stanford University. The website was implemented by Zé Martinho as part of an initiative to make epidemiological data more accessible.
-            If you have questions, ideas, or feedback, feel free to reach out!
-        </p>
+        </ul>
+        <ul>5. 	CDC Antimicrobial Resistance Threats in the United States, 2021-2022 Available online: https://www.cdc.gov/antimicrobial-resistance/data-research/threats/update-2022.html (accessed on 8 December 2024).
+
+        </ul>
+    </p>
     </div>
 </body>
 </html>
