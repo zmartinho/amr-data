@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Download Antimicrobial Resistance Data</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 20px;
+    }
+
+    .navbar {
+      background-color: #333;
+      overflow: hidden;
+    }
+
+    .navbar a {
+      float: left;
+      display: block;
+      color: #f2f2f2;
+      text-align: center;
+      padding: 14px 20px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .navbar a:hover {
+      background-color: #ddd;
+      color: black;
+    }
+
+    .download-links {
+      margin-top: 40px;
+    }
+
+    .download-links a {
+      display: block;
+      margin: 10px;
+      font-size: 18px;
+      color: #0077cc;
+      text-decoration: none;
+    }
+
+    .download-links a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Download Antimicrobial Resistance Data</h1>
+
+  <div class="navbar">
+    <a href="index.html">Home</a>
+    <a href="mission.html">Charts</a>
+    <a href="methods.html">Interactive Map</a>
+    <a href="about.html">About</a>
+    <a href="download.html">Download Data</a>
+  </div>
+  
+  <div class="download-links">
+    <h2>Available CSV Files:</h2>
+
+    <a href="data/cre_cleaned.csv" download>Download CRE Data</a>
+    <a href="data/esbl_cleaned.csv" download>Download ESBL Data</a>
+    <a href="data/mrsa_cleaned.csv" download>Download MRSA Data</a>
+    <a href="data/cra_cleaned.csv" download>Download CRA Data</a>
+  </div>
+
+</body>
+</html>
